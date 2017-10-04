@@ -75,6 +75,7 @@ void dijkstra(int start, int end) {
     u = get<1>(q.top());
     k = get<2>(q.top());
     q.pop();
+    if (d >= dist[u] && dist[u] != INF) continue;
     previous[u] = k;
     dist[u] = d;
     if (u == end) return;
@@ -124,7 +125,7 @@ int main(void) {
 
   bfs('a'-'a', 'z'-'a');
 
-  printf("V\tD\tP\n");
+  printf("V\tDist\tAnt\n");
   FOR(i, 0, 'z'-'a'+1) {
     printf("%c\t%d\t%c\n", i+'a', dist[i], previous[i]+'a');
   }
@@ -153,6 +154,7 @@ int main(void) {
   printf("Tabela para o segundo grafo:\n");
   dijkstra('a'-'a', 'g'-'a');
 
+  printf("V\tDist\tAnt\n");
   FOR(i, 0, 'g'-'a'+1) {
     printf("%c\t%d\t%c\n", i+'a', dist[i], previous[i]+'a');
   }
