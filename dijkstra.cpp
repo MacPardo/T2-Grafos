@@ -1,14 +1,24 @@
 #include <string.h>
 #include <stdio.h>
 #include <queue>
+#include <tuple>
 
 #define MAX 112
 #define INF 112345678
 
+#define FOR(A, B, C) for(int A = B; A < C; A++)
+#define FV(T, A, B) for(vector<T>::iterator A = B.begin(); A != B.end(); A++)
+#define BR printf("\n")
+
 using namespace std;
+
+typedef tuple<int, int, int> i3;
+typedef pair<int, int> ii;
 
 int graph[MAX][MAX];
 int size;
+int previous[MAX], dist[MAX];
+int global_i = 0;
 
 void ins(char a, char b, int w = 1) {
   a -= 'a';
@@ -17,39 +27,46 @@ void ins(char a, char b, int w = 1) {
   size++;
 }
 
-vector<int> bfs(int start, int end) {
-  bool ok[size];
-  memset(ok, false, sizeof(ok));
-  queue<pair<int, vector<int> > > q;
+vector<int> get_path(int start, int end) {
   vector<int> path;
-  path.push_back(start);
-  q.push(pair<int, vector<int> >(start, path));
-  int u;
-  while (!q.empty()) {
-    u = q.front().first;
-    path = q.front().second;
+  while (start != end) {
+    path.insert(path.begin(), end);
+    end = previous[end];
+  }
+  path.insert(path.begin(), start);
+  return path;
+}
+
+void bfs(int start, int end) {
+  bool ok[MAX];
+  memset(ok, false, sizeof(ok));
+  memset(dist, -1, sizeof(dist));
+  memset(previous, -1, sizeof(previous));
+  queue<i3> q; //<dist, v, prev>
+  int d, u, k;
+  q.push(i3(0, start, -1));
+
+  while(!q.empty()) {
+    d = get<0>(q.front());
+    u = get<1>(q.front());
+    k = get<2>(q.front());
     q.pop();
-
+    if (ok[u]) continue;
     ok[u] = true;
+    previous[u] = k;
+    dist[u] = d;
 
-    if (u == end) {
-      return path;
-    }
     for (int i = 0; i < size; i++) {
       if (graph[u][i] > 0 && !ok[i]) {
-        vector<int> k = path;
-        k.push_back(i);
-        q.push(pair<int,vector<int> >(i, k));
+        q.push(i3(d + 1, i, u));
       }
     }
   }
-
-  return vector<int>();
 }
 
+/*
 int dijkstra(int start, int end) {
   priority_queue<pair<int, int>, vector<pair<int, int> >, greater<pair<int, int> > > q;
-  int dist[size];
   int u, v;
   for (int i = 0; i < size; i++) dist[i] = INF;
   q.push(pair<int, int>(0, start));
@@ -68,6 +85,7 @@ int dijkstra(int start, int end) {
   }
   return INF;
 }
+*/
 
 int main(void) {
   memset(graph, 0, sizeof(graph));
@@ -104,11 +122,14 @@ int main(void) {
 
   printf("Caminho mais curto para o primeiro grafo:\n");
 
-  vector<int> path = bfs('a'-'a', 'z'-'a');
-  for (vector<int>::iterator it = path.begin(); it != path.end(); it++) {
-    printf("%c ", *it + 'a');
+  bfs('a'-'a', 'z'-'a');
+
+  printf("V\tD\tP\n");
+  FOR(i, 0, 'z'-'a'+1) {
+    printf("%c\t%d\t%c\n", i+'a', dist[i], previous[i]+'a');
   }
-  printf("\n");
-  printf("Comprimento: %d\n", path.size());
+  BR;
+  vector<int> path = get_path('a'-'a', 'z'-'a');
+  FV(int, it, path) printf("%c%s", *it + 'a', it + 1 == path.end() ? "\n" : "-> ");
   return 0;
 }
