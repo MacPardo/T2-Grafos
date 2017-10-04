@@ -4,7 +4,7 @@
 #include <tuple>
 
 #define MAX 112
-#define INF 112345678
+#define INF -1
 
 #define FOR(A, B, C) for(int A = B; A < C; A++)
 #define FV(T, A, B) for(vector<T>::iterator A = B.begin(); A != B.end(); A++)
@@ -64,28 +64,28 @@ void bfs(int start, int end) {
   }
 }
 
-/*
-int dijkstra(int start, int end) {
-  priority_queue<pair<int, int>, vector<pair<int, int> >, greater<pair<int, int> > > q;
-  int u, v;
-  for (int i = 0; i < size; i++) dist[i] = INF;
-  q.push(pair<int, int>(0, start));
+void dijkstra(int start, int end) {
+  priority_queue<i3, vector<i3>, greater<i3> > q;
+  memset(dist, INF, sizeof(dist)); //<dist, v, prev>
+  memset(previous, -1, sizeof(previous));
+  int d, u, k;
+  q.push(i3(0, start, -1));
   while(!q.empty()) {
-    u = q.top().second;
-    dist[u] = q.top().first;
+    d = get<0>(q.top());
+    u = get<1>(q.top());
+    k = get<2>(q.top());
     q.pop();
-    if (u == end) {
-      return dist[u];
-    }
-    for (int i = 0; i < size; i++) {
-      if (graph[u][i] > 0 && dist[u] + graph[u][i] < dist[i]) {
-        q.push(pair<int, int>(dist[u] + graph[u][i], i));
+    previous[u] = k;
+    dist[u] = d;
+    if (u == end) return;
+    FOR (i, 0, 'z' - 'a' + 1) {
+      if (graph[u][i] > 0 && (dist[i] == INF || dist[u] + graph[u][i] < dist[i])) {
+        q.push(i3(dist[u] + graph[u][i], i, u));
       }
     }
   }
-  return INF;
 }
-*/
+
 
 int main(void) {
   memset(graph, 0, sizeof(graph));
@@ -120,7 +120,7 @@ int main(void) {
   ins('s','z');
   ins('t','z');
 
-  printf("Caminho mais curto para o primeiro grafo:\n");
+  printf("Tabela para o primeiro grafo:\n");
 
   bfs('a'-'a', 'z'-'a');
 
@@ -131,5 +131,34 @@ int main(void) {
   BR;
   vector<int> path = get_path('a'-'a', 'z'-'a');
   FV(int, it, path) printf("%c%s", *it + 'a', it + 1 == path.end() ? "\n" : "-> ");
+  printf("Comprimento = %d\n", dist['z' - 'a']);
+
+
+  path.clear();
+  // GRAFO 2
+  memset(graph, 0, sizeof(graph));
+  size = 0;
+  ins('a', 'b', 7);
+  ins('a', 'd', 5);
+  ins('b', 'c', 8);
+  ins('b', 'd', 9);
+  ins('b', 'e', 7);
+  ins('c', 'e', 5);
+  ins('d', 'e', 15);
+  ins('d', 'f', 6);
+  ins('e', 'f', 8);
+  ins('e', 'g', 9);
+  ins('f', 'g', 11);
+
+  printf("Tabela para o segundo grafo:\n");
+  dijkstra('a'-'a', 'g'-'a');
+
+  FOR(i, 0, 'g'-'a'+1) {
+    printf("%c\t%d\t%c\n", i+'a', dist[i], previous[i]+'a');
+  }
+  BR;
+  path = get_path('a'-'a', 'g'-'a');
+  FV(int, it, path) printf("%c%s", *it + 'a', it + 1 == path.end() ? "\n" : "-> ");
+  printf("Comprimento = %d\n", dist['g' - 'a']);
   return 0;
 }
